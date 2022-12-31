@@ -1455,23 +1455,25 @@ class IGService:
         if len(prices) == 0:
             raise (Exception("Historical price data not found"))
 
+        
         df = json_normalize(prices)
-        df = df.set_index("snapshotTimeUTC")
-        df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
-        df.index.name = "DateTime"
+        df = df.set_index("snapshotTime")
+        df.index = pd.to_datetime(df.index, format=DATE_FORMATS[int(version)])
+        # df.index = pd.to_datetime(df.index, format="%Y-%m-%dT%H:%M:%S")
+        df.index.name = "datetime"
 
-        df['Open'] = df[['openPrice.bid', 'openPrice.ask']].mean(axis=1)
-        df['High'] = df[['highPrice.bid', 'highPrice.ask']].mean(axis=1)
-        df['Low'] = df[['lowPrice.bid', 'lowPrice.ask']].mean(axis=1)
-        df['Close'] = df[['closePrice.bid', 'closePrice.ask']].mean(axis=1)
+        df['open'] = df[['openPrice.bid', 'openPrice.ask']].mean(axis=1)
+        df['high'] = df[['highPrice.bid', 'highPrice.ask']].mean(axis=1)
+        df['low'] = df[['lowPrice.bid', 'lowPrice.ask']].mean(axis=1)
+        df['close'] = df[['closePrice.bid', 'closePrice.ask']].mean(axis=1)
 
-        df = df.drop(columns=['snapshotTime', 'openPrice.lastTraded', 'closePrice.lastTraded',
+        df = df.drop(columns=['openPrice.lastTraded', 'closePrice.lastTraded',
                               'highPrice.lastTraded', 'lowPrice.lastTraded',
                               "openPrice.bid", "openPrice.ask",
                               "closePrice.bid", "closePrice.ask",
                               "highPrice.bid", "highPrice.ask",
                               "lowPrice.bid", "lowPrice.ask"])
-        df = df.rename(columns={"lastTradedVolume": "Volume"})
+        df = df.rename(columns={"lastTradedVolume": "volume"})
 
         return df
 
